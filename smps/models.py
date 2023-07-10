@@ -18,6 +18,28 @@ class User(models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(3)]
     )
 
+class Tower(models.Model):
+    contractor_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    lat = models.DecimalField(max_digits=9, decimal_places=6)
+    long = models.DecimalField(max_digits=9, decimal_places=6)
+
+class Device(models.Model):
+    info = models.TextField()
+    tower_id = models.ForeignKey(Tower, on_delete=models.CASCADE)
+
+class SensorMaster(models.Model):
+    device_id = models.ForeignKey(Device, on_delete=models.CASCADE)
+    name=models.CharField(max_length=128)
+    min = models.IntegerField()
+    max = models.IntegerField()
+
+class SensorValues(models.Model):
+    sensor_id = models.ForeignKey(SensorMaster, on_delete=models.CASCADE)
+    value=models.CharField(max_length=128)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+
+
 #seed db
 def initRole():
         user_type1 = Role.objects.create(name='Director',role_id=0 )

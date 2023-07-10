@@ -3,7 +3,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password
 from django.http import JsonResponse
 from .models import *
+import paho.mqtt.client as mqtt
 
+
+def index(request):
+    print("hi")
+    return render(request, 'index.html')
 
 @csrf_exempt
 def auth(request):
@@ -60,8 +65,37 @@ def check_permission(id,required_role_id):
     else:
         return False
 
+def on_connect(client, userdata, flags, rc):
+    print("Connected to MQTT broker")
+    # Subscribe to desired topics
+    client.subscribe("topic1")
+    client.subscribe("topic2")
 
-def index(request):
-    print("hi")
-    return render(request, 'index.html')
+def on_message(client, userdata, msg):
+    print(f"Received message on topic: {msg.topic}")
+    print(f"Message: {msg.payload.decode()}")
+
+def mqtt_subscribe(request):
+    # Define the MQTT broker and connection parameters
+    broker_address = "broker.hivemq.com"
+    broker_port = 1883
+    username = ""  # No username required for HiveMQ public broker
+    password = ""  # No password required for HiveMQ public broker
+
+    # Create an MQTT client instance
+    client = mqtt.Client()
+
+    # Set up the callbacks
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    # Connect to the MQTT broker
+    client.connect(broker_address, broker_port, 60)
+
+    # Start the MQTT loop to handle incoming messages
+    client.loop_start()
+
+    # Return a JSON response
+    response_data = {'status': 'success', 'message': 'MQTT subscription started'}
+    return JsonResponse(response_data)
 
