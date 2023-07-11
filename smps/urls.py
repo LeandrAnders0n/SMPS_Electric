@@ -8,6 +8,7 @@ urlpatterns = [
     path('index/', views.index, name='index'),
     path('auth/', views.auth, name='auth'),
     path('add_user/', views.add_user, name='add_user'),
+    path('assign_tower/', views.assign_tower, name='assign_tower'),
     path('mqtt_subscribe/', views.mqtt_subscribe, name='mqtt_subscribe'),
 
 ]
