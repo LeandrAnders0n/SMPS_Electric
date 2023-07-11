@@ -27,7 +27,6 @@ class Tower(models.Model):
 class Operator(models.Model):
     tower_id = models.ForeignKey(Tower, on_delete=models.CASCADE)
     assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
-    assigned_by = models.ForeignKey(User, on_delete=models.CASCADE)
     lat = models.DecimalField(max_digits=9, decimal_places=6)
     long = models.DecimalField(max_digits=9, decimal_places=6)
 
