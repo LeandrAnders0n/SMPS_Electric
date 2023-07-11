@@ -19,12 +19,17 @@ class User(models.Model):
     )
 
 class Tower(models.Model):
-    contractor_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    area_manager_id = models.ForeignKey(User, on_delete=models.CASCADE)
     lat = models.DecimalField(max_digits=9, decimal_places=6)
     long = models.DecimalField(max_digits=9, decimal_places=6)
     assigned = models.IntegerField(default=0, choices=((0, 'Not Assigned'), (1, 'Assigned')))
 
-##OperatorTower()
+class Operator(models.Model):
+    tower_id = models.ForeignKey(Tower, on_delete=models.CASCADE)
+    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE)
+    assigned_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    lat = models.DecimalField(max_digits=9, decimal_places=6)
+    long = models.DecimalField(max_digits=9, decimal_places=6)
 
 class Device(models.Model):
     info = models.TextField()
