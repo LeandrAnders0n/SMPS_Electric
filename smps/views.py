@@ -8,7 +8,6 @@ import time
 import json
 
 def index(request):
-    print("hi")
     return render(request, 'index.html')
 
 @csrf_exempt
@@ -60,6 +59,50 @@ def insert_user(email, password, role):
     user.role_id = role
     user.save()
 
+@csrf_exempt
+def add_tower(request):
+    user_id = request.session.get('user_id')
+    area_manager_id = request.POST.get('area_manager_id')
+    latitude = request.POST.get('latitude')
+    longitude = request.POST.get('longitude')
+
+    if check_permission(user_id, [0]):
+        insert_tower(area_manager_id, latitude, longitude)
+        response_data = {'message': 'Tower Added'}
+        return JsonResponse(response_data)
+    response_data = {'message': 'You are not Authorized for this Action'}
+    return JsonResponse(response_data)
+
+def insert_tower(area_manager_id, latitude, longitude):
+    user = User.objects.get(id=area_manager_id) 
+    tower = Tower()
+    tower.area_manager_id = user
+    tower.lat = latitude
+    tower.long = longitude
+    tower.save()
+
+@csrf_exempt
+def assign_tower(request):
+    operator_id = request.POST.get('operator_id')
+    tower_id = request.POST.get('tower_id')
+
+    user_id = request.session.get('user_id')
+    if check_permission(user_id, [0, 1]):
+        user = User.objects.get(id=operator_id) 
+        tower = Tower.objects.get(id=tower_id) 
+        operation = Operator()
+        operation.tower_id = tower
+        operation.assigned_to = user
+        operation.save()
+
+        tower.assigned=1
+        tower.save()
+        response_data = {'message': 'Tower Assigned'}
+        
+        return JsonResponse(response_data)
+
+    response_data = {'message': 'You are not Authorized for this Action'}
+    return JsonResponse(response_data)
 
 def check_permission(id, required_role_id):
     user = User.objects.get(id=id)
@@ -67,7 +110,6 @@ def check_permission(id, required_role_id):
         return True
     else:
         return False
-
 
 def on_connect(client, userdata, flags, rc):
     print("Connected to MQTT broker with result code: " + str(rc))
@@ -80,7 +122,7 @@ def on_message(client, userdata, msg):
         data = json.loads(msg.payload.decode("utf-8"))
 
         # Print the received data
-        print("Received data:", data)
+        print("Received data:", data["name"])
 
 def publish_data(client):
     topic = "your/topic"  # Specify the topic to which you want to publish the data
